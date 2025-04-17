@@ -128,8 +128,23 @@ if uploaded_file is not None:
         return pd.Series([ratio, oil_pct, tube_volume, start_time, cleaned_dilution])
 
     df[["Ratio", "Oil (%)", "Tube Volume (mL)", "Start Time", "Dilution"]] = df["Dilution"].apply(extract_from_dilution)
-    df["Time (min)"] = df["Time (min)"].apply(lambda v: float(v[:-1])*60 if str(v).endswith("h") else float(v[:-1])*24*60 if str(v).endswith("d") else float(v) if str(v).replace('.', '', 1).isdigit() else None)
-    df[["SampleID", "Dilution", "Date", "Start Time", "Ratio", "Oil (%)"]] = df[["SampleID", "Dilution", "Date", "Start Time", "Ratio", "Oil (%)"]].ffill()
+    if "Time (min)" in df.columns:
+        def convert_to_minutes(value):
+            if pd.isna(value):
+                return None
+            value = str(value).strip().lower()
+            if value.endswith("h"):
+                return float(value[:-1]) * 60
+            elif value.endswith("d"):
+                return float(value[:-1]) * 24 * 60
+            elif value.replace('.', '', 1).isdigit():
+                return float(value)
+            return None
+
+        df["Time (min)"] = df["Time (min)"].apply(convert_to_minutes)
+    else:
+        st.error("❌ 'Time (min)' column is missing in the parsed dataframe.")
+        df[["SampleID", "Dilution", "Date", "Start Time", "Ratio", "Oil (%)"]] = df[["SampleID", "Dilution", "Date", "Start Time", "Ratio", "Oil (%)"]].ffill()
 
     foam_data = pd.DataFrame()
     for column, label in [("Foam Layer (cc)", "Foam (cc)"), ("Foam Texture", "Foam Texture")]:
@@ -140,7 +155,7 @@ if uploaded_file is not None:
 
     group_cols = ['SampleID', 'Date', 'Dilution']
     foam_pivot = foam_data.pivot_table(index=group_cols, columns='Column Name', values='Value', aggfunc='first').reset_index()
-    baseline_map = df.groupby(group_cols)['Baseline'].apply(lambda x: "*" if "*" in x.astype(str).values else "").reset_index()
+    baseline_map = df.groupby(group_cols)['sBaseline'].apply(lambda x: "*" if "*" in x.astype(str).values else "").reset_index()
     start_time_map = df.groupby(group_cols)['Start Time'].apply(lambda x: x.dropna().astype(str).iloc[0] if x.dropna().any() else "").reset_index()
     static_cols = ["Ratio", "Oil (%)", "HS (%)", "Citric (%)", "CapB (%)", "AOS (%)", "APG (%)", "chinese HS (%)", "citric (%)", "CAPB (%)", "LBHP (%)"]
     static_info = df.groupby(group_cols)[static_cols].first().reset_index()
