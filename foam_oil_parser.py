@@ -24,12 +24,12 @@ if utl.check_password():
         df[["Ratio", "Oil (%)", "Tube Volume (mL)", "Start Time", "Dilution"]] = df["Dilution"].apply(utl.extract_from_dilution)
         df["Dilution"] = df["Dilution"].str.replace(r"\b[Dd]ilution\b", "", regex=True).str.strip()
         df["Dilution"] = df["Dilution"].str.replace(r"-{2,}", " - ", regex=True).str.strip()
-    
+        df["Dilution"] = df["Dilution"].fillna("No Dilution")
+
         parsed_df = df.copy()
         parsed_df["Time (min)"] = parsed_df["Time (min)"].apply(utl.convert_to_minutes)
         parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']] = parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']].ffill()
         parsed_df['Time (min)'] = parsed_df['Time (min)'].astype(str)
-        parsed_df["Dilution"] = parsed_df["Dilution"].fillna("No Dilution")
 
         foam_data = pd.DataFrame()
         for column, label in [('Foam Layer (cc)', 'Foam (cc)'), ('Foam Texture', 'Foam Texture')]:
