@@ -39,7 +39,7 @@ if utl.check_password():
             temp = temp.rename(columns={column: "Value"})
             foam_data = pd.concat([foam_data, temp], ignore_index=True)
     
-        group_cols = ['SampleID', 'Date', 'Dilution']
+        group_cols = ['SampleID', 'Dilution']
         foam_pivot = foam_data.pivot_table(index=group_cols, columns='Column Name', values='Value', aggfunc='first').reset_index()
         baseline_map = parsed_df.groupby(group_cols)['Baseline'].apply(lambda x: "*" if "*" in x.astype(str).values else "").reset_index()
         start_time_map = parsed_df.groupby(group_cols)['Start Time'].apply(lambda x: x.dropna().astype(str).iloc[0] if x.dropna().any() else "").reset_index()
