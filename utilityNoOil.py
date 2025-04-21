@@ -13,9 +13,9 @@ def extract_from_dilution(text):
     if pd.notna(text):
         original_text = text = str(text)
         # Extract ratio
-        match_ratio = re.search(r"\((\d:\d)\)\s*ratio", text)
-        if match_ratio:
-            ratio = match_ratio.group(1)
+        # match_ratio = re.search(r"\((\d:\d)\)\s*ratio", text)
+        # if match_ratio:
+            # ratio = match_ratio.group(1)
         # Extract oil
         match_oil = re.search(r"(\d+)%\s*oil", text, re.IGNORECASE)
         if match_oil:
@@ -31,7 +31,7 @@ def extract_from_dilution(text):
         # Now remove all matched patterns from text
         cleaned_dilution = re.sub(r"\s*-\s*\d{1,2}:\d{2}", "", cleaned_dilution)  # Remove time
         cleaned_dilution = re.sub(r"\s*-\s*\d{1,2}-[A-Za-z]{3}", "", cleaned_dilution)  # Remove date
-        cleaned_dilution = re.sub(r"\s*\(?\d:\d\)?\s*ratio", "", cleaned_dilution, flags=re.IGNORECASE)  # Remove (X:Y) ratio
+        #cleaned_dilution = re.sub(r"\s*\(?\d:\d\)?\s*ratio", "", cleaned_dilution, flags=re.IGNORECASE)  # Remove (X:Y) ratio
         cleaned_dilution = re.sub(r"\s*\d+% oil", "", cleaned_dilution, flags=re.IGNORECASE)  # Remove oil %
         cleaned_dilution = re.sub(r"\s*\d+\s*mL", "", cleaned_dilution, flags=re.IGNORECASE)  # Remove mL
         # Remove leftover " - " at ends or doubled spaces
