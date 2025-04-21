@@ -218,3 +218,20 @@ def extract_ratio_from_dilution(df):
     df.drop(columns=['ExtractedRatio', 'CleanDilution'], inplace=True)
     return df
 
+def check_password():
+    def password_entered():
+        if st.session_state["password"] == "2025":
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Optional: clear password after check
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        # Ask for password
+        st.text_input("Enter Password", type="password", on_change=password_entered, key="password")
+        return False
+    elif not st.session_state["password_correct"]:
+        st.error("Incorrect password")
+        return False
+    else:
+        return True
