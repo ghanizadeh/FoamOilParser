@@ -62,8 +62,13 @@ if utl.check_password():
         final_df = utl.sort_time_columns_in_df(final_df)
         final_df = utl.convert_time_columns_to_float_hour(final_df)
         final_df = utl.extract_ratio_from_dilution(final_df)
+        
+        foam_texture_cols = [col for col in final_df.columns if "foam texture" in col.lower()]
+        final_df["Foam Texture"] = final_df[foam_texture_cols].astype(str).apply(
+            lambda row: " | ".join([val for val in row if val.lower() != "nan"]), axis=1
+        )
+        final_df.drop(columns=foam_texture_cols, inplace=True)
 
-    
         # Show output for Parsed_Yates_Oil_Processed.csv
         st.subheader("Parsed_Yates_Oil_Processed.csv (Raw Processed)")
         st.dataframe(df)
