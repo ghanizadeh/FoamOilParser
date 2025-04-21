@@ -97,7 +97,7 @@ if uploaded_file:
                     st.success(f"Found {len(result_df_multi)} row(s) in Multi Row Samples.")
                     st.dataframe(result_df_multi)
 
-            if show_single:
+            elif show_single:
                 st.markdown("### Single Row Samples")
                 if result_df_single.empty:
                     st.warning("No Single Row Sample found for this SampleID.")
