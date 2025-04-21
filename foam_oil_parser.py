@@ -25,7 +25,7 @@ if utl.check_password():
         df["Dilution"] = df["Dilution"].str.replace(r"\b[Dd]ilution\b", "", regex=True).str.strip()
         df["Dilution"] = df["Dilution"].str.replace(r"-{2,}", " - ", regex=True).str.strip()
         df["Dilution"] = df["Dilution"].fillna("00x")
-        #df["Date"] = df["Date"].fillna("No Date")
+        df["Date"] = df["Date"].fillna("No Date")
 
         parsed_df = df.copy()
         parsed_df["Time (min)"] = parsed_df["Time (min)"].apply(utl.convert_to_minutes)
