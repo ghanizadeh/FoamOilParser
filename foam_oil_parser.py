@@ -3,9 +3,8 @@ import pandas as pd
 import utilityNoOil as utl
 from io import StringIO
 
-
+st.set_page_config(page_title="Foam Oil Sample Parser", layout="wide")
 if utl.check_password():
-    st.set_page_config(page_title="Foam Oil Sample Parser", layout="wide")
     st.title("Foam Oil Sample Parser")
     st.write("✅ Access granted! Continue with the app.")
     
