@@ -212,7 +212,7 @@ def extract_ratio_from_dilution(df):
             ratio = f"{match.group(1)}-{match.group(2)}"  # convert X:Y → X-Y
         else:
             ratio = np.nan
-        new_text = re.sub(r"\s*\(\d+:\d+\)\s*ratio", "", text).strip()
+        #new_text = re.sub(r"\s*\(\d+:\d+\)\s*ratio", "", text).strip()
         new_text = new_text.replace("-", "").strip()  # Optional: remove extra hyphens
         return ratio, new_text
 
