@@ -203,7 +203,10 @@ def extract_ratio_from_dilution(df):
         if pd.isna(text):
             return "", text
         match = re.search(r"\((\d+:\d+)\)\s*ratio", text)
-        ratio = match.group(1) if match else np.nan
+        if match:
+            ratio = f"{match.group(1)}-{match.group(2)}"  # convert X:Y → X-Y
+        else:
+            ratio = np.nan
         new_text = re.sub(r"\s*\(\d+:\d+\)\s*ratio", "", text).strip()
         new_text = new_text.replace("-", "").strip()  # Remove hyphens
         return ratio, new_text
