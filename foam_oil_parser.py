@@ -65,7 +65,7 @@ if utl.check_password():
         
         foam_texture_cols = [col for col in final_df.columns if "foam texture" in col.lower()]
         final_df["Foam Texture"] = final_df[foam_texture_cols].astype(str).apply(
-            lambda row: " | ".join([val for val in row if val.lower() != "nan"]), axis=1
+            lambda row: " | ".join([val for val in row]), axis=1
         )
         final_df.drop(columns=foam_texture_cols, inplace=True)
 
