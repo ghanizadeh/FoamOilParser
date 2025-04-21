@@ -41,7 +41,7 @@ if uploaded_file:
     start_time_map = parsed_df.groupby(group_cols)['Start Time'].apply(lambda x: x.dropna().astype(str).iloc[0] if x.dropna().any() else "").reset_index()
 
     static_cols = ['Ratio', 'Oil (%)', 'HS (%)', 'Citric (%)', 'CapB (%)', 'AOS (%)', 'APG (%)',
-                   'chinese HS (%)', 'LBHP (%)']
+                   'chinese HS (%)', 'LBHP (%)','Is_stable']
     static_info = parsed_df.groupby(group_cols)[static_cols].first().reset_index()
 
     final_df = foam_pivot.merge(baseline_map, on=group_cols, how='left')
@@ -63,14 +63,14 @@ if uploaded_file:
     col1, col2 = st.columns(2)
     with col1:
         st.download_button(
-            "Download Parsed_Yates_Oil_Processed.csv",
+            "Download Multi Row Samples.csv",
             df.to_csv(index=False).encode("utf-8"),
             file_name="Parsed_Yates_Oil_Processed.csv",
             mime="text/csv"
         )
     with col2:
         st.download_button(
-            "Download Parsed_Yates_Oil_Processed_Time_Single_sorted.csv",
+            "Download Single Row Sample.csv",
             final_df.to_csv(index=False).encode("utf-8"),
             file_name="Parsed_Yates_Oil_Processed_Time_Single_sorted.csv",
             mime="text/csv"
@@ -78,12 +78,29 @@ if uploaded_file:
 
     # Search functionality
     st.subheader("Search by SampleID")
-    search_id = st.text_input("Enter SampleID (case-sensitive):")
+    # Selection checkboxes
+    show_multi = st.checkbox("Show Multi Row Samples", value=True)
+    show_single = st.checkbox("Show Single Row Samples", value=False)
 
     if search_id:
-        result_df = df[df["SampleID"].str.lower() == search_id.lower()]
-        if result_df.empty:
-            st.warning("No matching SampleID found.")
+        result_df_multi = df[df["SampleID"].str.lower() == search_id.lower()]
+        result_df_single = final_df[final_df["SampleID"].str.lower() == search_id.lower()]
+
+        if not show_multi and not show_single:
+            st.info("Please select at least one display option.")
         else:
-            st.success(f"Found {len(result_df)} row(s) for SampleID: {search_id}")
-            st.dataframe(result_df)
+            if show_multi:
+                st.markdown("### Multi Row Samples")
+                if result_df_multi.empty:
+                    st.warning("No Multi Row Sample found for this SampleID.")
+                else:
+                    st.success(f"Found {len(result_df_multi)} row(s) in Multi Row Samples.")
+                    st.dataframe(result_df_multi)
+
+            if show_single:
+                st.markdown("### Single Row Samples")
+                if result_df_single.empty:
+                    st.warning("No Single Row Sample found for this SampleID.")
+                else:
+                    st.success("Found matching sample in Single Row Samples.")
+                    st.dataframe(result_df_single)
