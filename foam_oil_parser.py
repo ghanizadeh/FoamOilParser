@@ -79,15 +79,17 @@ if uploaded_file:
     # Search functionality
     st.subheader("Search by SampleID")
     search_id = st.text_input("Enter SampleID:")
-    # Exclusive selection using radio button
-    view_option = st.radio(
-        "Choose view mode:",
-        ("Multi Row Samples", "Single Row Samples")
-    )
+
+    search_type = st.radio("Search type", ["Exact Match", "Contains"])
+    view_option = st.radio("Choose view mode:", ["Multi Row Samples", "Single Row Samples"])
 
     if search_id:
-        result_df_multi = df[df["SampleID"].str.lower() == search_id.lower()]
-        result_df_single = final_df[final_df["SampleID"].str.lower() == search_id.lower()]
+        if search_type == "Exact Match":
+            result_df_multi = df[df["SampleID"].str.lower() == search_id.lower()]
+            result_df_single = final_df[final_df["SampleID"].str.lower() == search_id.lower()]
+        else:  # Contains
+            result_df_multi = df[df["SampleID"].str.lower().str.contains(search_id.lower(), na=False)]
+            result_df_single = final_df[final_df["SampleID"].str.lower().str.contains(search_id.lower(), na=False)]
 
         if view_option == "Multi Row Samples":
             st.markdown("### Multi Row Samples")
@@ -104,3 +106,4 @@ if uploaded_file:
             else:
                 st.success("Found matching sample in Single Row Samples.")
                 st.dataframe(result_df_single)
+
