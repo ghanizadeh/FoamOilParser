@@ -193,11 +193,7 @@ def convert_time_columns_to_float_hour(df):
     df = df.rename(columns=new_columns)
     return df
 
-import pandas as pd
-import numpy as np
-import re
-
-extract_ratio_from_dilution(df):
+def extract_ratio_from_dilution(df):
     if 'Ratio' not in df.columns:
         df['Ratio'] = ""
     else:
