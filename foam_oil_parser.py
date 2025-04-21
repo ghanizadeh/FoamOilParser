@@ -54,7 +54,7 @@ if uploaded_file:
     final_df = final_df[all_cols]
     final_df = utl.sort_time_columns_in_df(final_df)
     final_df = utl.convert_time_columns_to_float_hour(final_df)
-    final_df = extract_ratio_from_dilution(final_df)
+    final_df = utl.extract_ratio_from_dilution(final_df)
 
     # Show output for Parsed_Yates_Oil_Processed.csv
     st.subheader("Parsed_Yates_Oil_Processed.csv (Raw Processed)")
