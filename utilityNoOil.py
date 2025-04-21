@@ -205,6 +205,7 @@ def extract_ratio_from_dilution(df):
         match = re.search(r"\((\d+:\d+)\)\s*ratio", text)
         ratio = match.group(1) if match else np.nan
         new_text = re.sub(r"\s*\(\d+:\d+\)\s*ratio", "", text).strip()
+        new_text = new_text.replace("-", "").strip()  # Remove hyphens
         return ratio, new_text
     # Apply the function to each row
     df[['ExtractedRatio', 'CleanDilution']] = df['Dilution'].apply(
