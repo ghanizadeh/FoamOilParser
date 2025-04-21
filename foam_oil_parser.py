@@ -78,6 +78,7 @@ if uploaded_file:
 
     # Search functionality
     st.subheader("Search by SampleID")
+    search_id = st.text_input("Enter SampleID:")
     # Selection checkboxes
     show_multi = st.checkbox("Show Multi Row Samples", value=True)
     show_single = st.checkbox("Show Single Row Samples", value=False)
