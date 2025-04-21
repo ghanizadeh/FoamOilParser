@@ -81,7 +81,7 @@ if uploaded_file:
     search_id = st.text_input("Enter SampleID (case-sensitive):")
 
     if search_id:
-        result_df = df[df["SampleID"] == search_id]
+        result_df = df[df["SampleID"].str.lower() == search_id.lower()]
         if result_df.empty:
             st.warning("No matching SampleID found.")
         else:
