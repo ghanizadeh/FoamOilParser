@@ -13,6 +13,9 @@ if uploaded_file:
 
     # Step 1: Read and parse the file
     df = pd.read_csv(uploaded_file, header=None, encoding="cp1252")
+    new_row = pd.DataFrame([["start"] * len(df.columns)], columns=df.columns)
+    df = pd.concat([new_row, df], ignore_index=True)
+
     df = utl.extract_all_samples_with_corrected_stability(df)
     df["Ratio"] = pd.NA
     df["Oil (%)"] = pd.NA
