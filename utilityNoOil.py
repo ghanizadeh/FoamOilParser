@@ -197,36 +197,28 @@ import pandas as pd
 import numpy as np
 import re
 
-def extract_ratio_from_dilution(df):
+extract_ratio_from_dilution(df):
     if 'Ratio' not in df.columns:
         df['Ratio'] = ""
     else:
         df['Ratio'] = df['Ratio'].astype(str)
-
-    # Function to extract and transform ratio
+    # Function to extract ratio and clean dilution
     def process_dilution_text(text):
         if pd.isna(text):
             return "", text
-        match = re.search(r"\((\d+):(\d+)\)\s*ratio", text)
-        if match:
-            ratio = f"{match.group(1)}-{match.group(2)}"  # convert X:Y → X-Y
-        else:
-            ratio = np.nan
-        #new_text = re.sub(r"\s*\(\d+:\d+\)\s*ratio", "", text).strip()
-        new_text = new_text.replace("-", "").strip()  # Optional: remove extra hyphens
+        match = re.search(r"\((\d+:\d+)\)\s*ratio", text)
+        ratio = match.group(1) if match else np.nan
+        new_text = re.sub(r"\s*\(\d+:\d+\)\s*ratio", "", text).strip()
+        new_text = new_text.replace("-", "").strip()  # Remove hyphens
         return ratio, new_text
-
     # Apply the function to each row
     df[['ExtractedRatio', 'CleanDilution']] = df['Dilution'].apply(
         lambda x: pd.Series(process_dilution_text(x))
     )
-
     # Update the Ratio and Dilution columns
-    df['Ratio'] = df['ExtractedRatio'].where(df['ExtractedRatio'].notna(), df['Ratio'])
+    df['Ratio'] = df['ExtractedRatio'].where(df['ExtractedRatio'] != "", df['Ratio'])
     df['Dilution'] = df['CleanDilution']
-
     # Drop temporary columns
     df.drop(columns=['ExtractedRatio', 'CleanDilution'], inplace=True)
-
     return df
 
