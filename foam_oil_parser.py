@@ -29,7 +29,8 @@ if utl.check_password():
         parsed_df["Time (min)"] = parsed_df["Time (min)"].apply(utl.convert_to_minutes)
         parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']] = parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']].ffill()
         parsed_df['Time (min)'] = parsed_df['Time (min)'].astype(str)
-    
+        parsed_df["Dilution"] = parsed_df["Dilution"].fillna("No Dilution")
+
         foam_data = pd.DataFrame()
         for column, label in [('Foam Layer (cc)', 'Foam (cc)'), ('Foam Texture', 'Foam Texture')]:
             temp = parsed_df[['SampleID', 'Date', 'Dilution', 'Time (min)', column]].copy()
@@ -57,6 +58,7 @@ if utl.check_password():
         final_df = utl.sort_time_columns_in_df(final_df)
         final_df = utl.convert_time_columns_to_float_hour(final_df)
         final_df = utl.extract_ratio_from_dilution(final_df)
+
     
         # Show output for Parsed_Yates_Oil_Processed.csv
         st.subheader("Parsed_Yates_Oil_Processed.csv (Raw Processed)")
