@@ -64,11 +64,14 @@ if utl.check_password():
         final_df = utl.extract_ratio_from_dilution(final_df)
         
         foam_texture_cols = [col for col in final_df.columns if "foam texture" in col.lower()]
-        final_df["Foam Texture"] = final_df[foam_texture_cols].astype(str).apply(
-            lambda row: " | ".join([val for val in row]), axis=1
+        final_df["Foam Description"] = final_df[foam_texture_cols].astype(str).apply(
+            lambda row: " | ".join([val for val in row if val.lower() != "nan"]), axis=1
         )
-        final_df.drop(columns=foam_texture_cols, inplace=True)
-
+        #final_df.drop(columns=foam_texture_cols, inplace=True)
+        phrase="Foam Texture"
+        columns_to_drop = [col for col in final_df.columns if phrase.lower() in col.lower()]
+        final_df = final_df.drop(columns=columns_to_drop, inplace=False)
+        
         # Show output for Parsed_Yates_Oil_Processed.csv
         st.subheader("Parsed_Yates_Oil_Processed.csv (Raw Processed)")
         st.dataframe(df)
