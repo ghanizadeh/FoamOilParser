@@ -41,14 +41,14 @@ if uploaded_file:
     start_time_map = parsed_df.groupby(group_cols)['Start Time'].apply(lambda x: x.dropna().astype(str).iloc[0] if x.dropna().any() else "").reset_index()
 
     static_cols = ['Ratio', 'Oil (%)', 'HS (%)', 'Citric (%)', 'CapB (%)', 'AOS (%)', 'APG (%)',
-                   'chinese HS (%)', 'LBHP (%)','Is_stable']
+                   'chinese HS (%)', 'LBHP (%)']
     static_info = parsed_df.groupby(group_cols)[static_cols].first().reset_index()
 
     final_df = foam_pivot.merge(baseline_map, on=group_cols, how='left')
     final_df = final_df.merge(start_time_map, on=group_cols, how='left')
     final_df = final_df.merge(static_info, on=group_cols, how='left')
 
-    prefix_cols = ['SampleID', 'Date', 'Ratio', 'Oil (%)', 'Dilution', 'Start Time', 'Baseline']
+    prefix_cols = ['SampleID', 'Date', 'Ratio', 'Oil (%)', 'Dilution', 'Start Time', 'Baseline','Is_stable']
     time_cols = sorted([col for col in final_df.columns if col.startswith("Time (")])
     all_cols = prefix_cols + time_cols + [col for col in static_cols if col not in prefix_cols]
     final_df = final_df[all_cols]
