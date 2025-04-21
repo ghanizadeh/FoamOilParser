@@ -79,29 +79,28 @@ if uploaded_file:
     # Search functionality
     st.subheader("Search by SampleID")
     search_id = st.text_input("Enter SampleID:")
-    # Selection checkboxes
-    show_multi = st.checkbox("Show Multi Row Samples", value=True)
-    show_single = st.checkbox("Show Single Row Samples", value=False)
+    # Exclusive selection using radio button
+    view_option = st.radio(
+        "Choose view mode:",
+        ("Multi Row Samples", "Single Row Samples")
+    )
 
     if search_id:
         result_df_multi = df[df["SampleID"].str.lower() == search_id.lower()]
         result_df_single = final_df[final_df["SampleID"].str.lower() == search_id.lower()]
 
-        if not show_multi and not show_single:
-            st.info("Please select at least one display option.")
-        else:
-            if show_multi:
-                st.markdown("### Multi Row Samples")
-                if result_df_multi.empty:
-                    st.warning("No Multi Row Sample found for this SampleID.")
-                else:
-                    st.success(f"Found {len(result_df_multi)} row(s) in Multi Row Samples.")
-                    st.dataframe(result_df_multi)
+        if view_option == "Multi Row Samples":
+            st.markdown("### Multi Row Samples")
+            if result_df_multi.empty:
+                st.warning("No Multi Row Sample found for this SampleID.")
+            else:
+                st.success(f"Found {len(result_df_multi)} row(s) in Multi Row Samples.")
+                st.dataframe(result_df_multi)
 
-            elif show_single:
-                st.markdown("### Single Row Samples")
-                if result_df_single.empty:
-                    st.warning("No Single Row Sample found for this SampleID.")
-                else:
-                    st.success("Found matching sample in Single Row Samples.")
-                    st.dataframe(result_df_single)
+        elif view_option == "Single Row Samples":
+            st.markdown("### Single Row Samples")
+            if result_df_single.empty:
+                st.warning("No Single Row Sample found for this SampleID.")
+            else:
+                st.success("Found matching sample in Single Row Samples.")
+                st.dataframe(result_df_single)
