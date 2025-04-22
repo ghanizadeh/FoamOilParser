@@ -5,7 +5,7 @@ from io import StringIO
 
 st.set_page_config(page_title="Foam Oil Sample Parser", layout="wide")
 if utl.check_password():
-    st.title("Foam Oil Sample Parser")
+    #st.title("Foam Oil Sample Parser")
     st.write("✅ Access granted! Continue with the app.")
     
     uploaded_file = st.file_uploader("Upload your CSV", type=["csv"])
