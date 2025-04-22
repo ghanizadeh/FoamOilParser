@@ -42,9 +42,11 @@ if utl.check_password():
             temp = temp.rename(columns={column: "Value"})
             foam_data = pd.concat([foam_data, temp], ignore_index=True)
 
-        foam_data["Dilution"] = foam_data["Dilution"].fillna("00x")
-        foam_data["Date"] = foam_data["Date"].fillna("No Date")
+        #foam_data["Dilution"] = foam_data["Dilution"].fillna("00x")
+        #foam_data["Date"] = foam_data["Date"].fillna("No Date")
 
+        df["Dilution"] = df["Dilution"].fillna("00x")
+        df["Date"] = df["Date"].fillna("No Date")
         group_cols = ['SampleID', 'Date', 'Dilution']
         foam_pivot = foam_data.pivot_table(index=group_cols, columns='Column Name', values='Value', aggfunc='first').reset_index()
         baseline_map = parsed_df.groupby(group_cols)['Baseline'].apply(lambda x: "*" if "*" in x.astype(str).values else "").reset_index()
