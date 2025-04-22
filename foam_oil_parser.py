@@ -22,12 +22,14 @@ if utl.check_password():
         df["Start Time"] = pd.NA
     
         df[["Ratio", "Oil (%)", "Tube Volume (mL)", "Start Time", "Dilution"]] = df["Dilution"].apply(utl.extract_from_dilution)
+        #df[["Ratio", "Oil (%)", "Tube Volume (mL)", "Start Time", "Dilution"]] = df["Dilution"].apply(utl.extract_from_dilution)
+
         df["Dilution"] = df["Dilution"].str.replace(r"\b[Dd]ilution\b", "", regex=True).str.strip()
         df["Dilution"] = df["Dilution"].str.replace(r"-{2,}", " - ", regex=True).str.strip()
         df["Dilution"] = df["Dilution"].fillna("00x")
         df["Date"] = df["Date"].fillna("No Date")
         unique_ID_multi = df['SampleID'].nunique()
-        df = utl.extract_ratio_from_dilution(df)
+        #df = utl.extract_ratio_from_dilution(df)
 
         parsed_df = df.copy()
         parsed_df["Time (min)"] = parsed_df["Time (min)"].apply(utl.convert_to_minutes)
@@ -117,7 +119,7 @@ if utl.check_password():
     
         if search_id:
             if search_type == "Exact Match":
-                result_df_multi = foam_data[foam_data["SampleID"].str.lower() == search_id.lower()]
+                result_df_multi = df[df["SampleID"].str.lower() == search_id.lower()]
                 result_df_single = final_df[final_df["SampleID"].str.lower() == search_id.lower()]
             else:  # Contains
                 result_df_multi = foam_data[foam_data["SampleID"].str.lower().str.contains(search_id.lower(), na=False)]
