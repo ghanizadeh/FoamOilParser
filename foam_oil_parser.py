@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import utilityNoOil as utl
+import utilityOil as utl
 from io import StringIO
 
 st.set_page_config(page_title="Foam Oil Sample Parser", layout="wide")
