@@ -42,11 +42,9 @@ if utl.check_password():
             temp = temp.rename(columns={column: "Value"})
             foam_data = pd.concat([foam_data, temp], ignore_index=True)
 
-        #foam_data["Dilution"] = foam_data["Dilution"].fillna("00x")
-        #foam_data["Date"] = foam_data["Date"].fillna("No Date")
+        foam_data["Dilution"] = foam_data["Dilution"].fillna("00x")
+        foam_data["Date"] = foam_data["Date"].fillna("No Date")
 
-        df["Dilution"] = df["Dilution"].fillna("00x")
-        df["Date"] = df["Date"].fillna("No Date")
         group_cols = ['SampleID', 'Date', 'Dilution']
         foam_pivot = foam_data.pivot_table(index=group_cols, columns='Column Name', values='Value', aggfunc='first').reset_index()
         baseline_map = parsed_df.groupby(group_cols)['Baseline'].apply(lambda x: "*" if "*" in x.astype(str).values else "").reset_index()
@@ -62,8 +60,8 @@ if utl.check_password():
         unique_ID_Multiple = df['SampleID'].nunique()
         unique_combinations = foam_data[['SampleID', 'Dilution']].drop_duplicates()
         unique_combinations = len(unique_combinations)
-        #unique_combinations_date = df[['SampleID', 'Dilution', 'Date']].drop_duplicates()
-        #unique_combinations_date = len(unique_combinations)
+        unique_combinations_date = foam_data[['SampleID', 'Dilution', 'Date']].drop_duplicates()
+        unique_combinations_date = len(unique_combinations)
         prefix_cols = ['SampleID', 'Date', 'Ratio', 'Oil (%)', 'Dilution', 'Start Time', 'Baseline']
         time_cols = sorted([col for col in final_df.columns if col.startswith("Time (")])
         all_cols = prefix_cols + time_cols + [col for col in static_cols if col not in prefix_cols]
@@ -87,9 +85,9 @@ if utl.check_password():
         st.dataframe(df)
         st.success(f"Total unique samplesID in df: {unique_ID_Multiple}")
         st.success(f"Total unique samplesID - Dilution in df: {unique_combinations}")
-        #st.success(f"Total unique samplesID - Dilution - Date in df: {unique_combinations_date}")
-        #st.success(f"Total unique samplesID in final_df: {unique_ID_single}")
-        #st.success(f"Number of row in final_df: {len(final_df)}")
+        st.success(f"Total unique samplesID - Dilution - Date in df: {unique_combinations_date}")
+        st.success(f"Total unique samplesID in final_df: {unique_ID_single}")
+        st.success(f"Number of row in final_df: {len(final_df)}")
 
         # Buttons to download
         col1, col2 = st.columns(2)
