@@ -61,7 +61,7 @@ if utl.check_password():
         unique_combinations = foam_data[['SampleID', 'Dilution']].drop_duplicates()
         unique_combinations = len(unique_combinations)
         unique_combinations_date = foam_data[['SampleID', 'Dilution', 'Date']].drop_duplicates()
-        unique_combinations_date = len(unique_combinations)
+        unique_combinations_date = len(unique_combinations_date)
         prefix_cols = ['SampleID', 'Date', 'Ratio', 'Oil (%)', 'Dilution', 'Start Time', 'Baseline']
         time_cols = sorted([col for col in final_df.columns if col.startswith("Time (")])
         all_cols = prefix_cols + time_cols + [col for col in static_cols if col not in prefix_cols]
