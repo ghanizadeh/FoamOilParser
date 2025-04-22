@@ -104,7 +104,7 @@ if utl.check_password():
             )
         with col2:
             st.download_button(
-                "Download Single Row Sample.csv",
+                "Download Single Row Samples.csv",
                 final_df.to_csv(index=False).encode("utf-8"),
                 file_name="Parsed_Yates_Oil_Processed_Time_Single_sorted.csv",
                 mime="text/csv"
