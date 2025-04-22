@@ -85,7 +85,7 @@ if utl.check_password():
         st.dataframe(df)
         #st.success(f"Total number of extracted samples: {unique_ID_Multiple}")
         #st.success(f"Total unique samplesID - Dilution in df: {unique_combinations}")
-        #st.success(f"Total number of extracted samples (with unique SampleID-Dilution-Date): {unique_combinations_date}")
+        st.success(f"Total number of extracted samples (with unique SampleID-Dilution-Date): {unique_combinations_date}")
         #st.success(f"Total unique samplesID in final_df: {unique_ID_single}")
         #st.success(f"Number of row in final_df: {len(final_df)}")
 
