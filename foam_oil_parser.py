@@ -57,9 +57,9 @@ if utl.check_password():
         final_df = foam_pivot.merge(baseline_map, on=group_cols, how='left')
         final_df = final_df.merge(start_time_map, on=group_cols, how='left')
         final_df = final_df.merge(static_info, on=group_cols, how='left')
-        unique_ID_Multiple = df['SampleID'].nunique()
-        unique_combinations = foam_data[['SampleID', 'Dilution']].drop_duplicates()
-        unique_combinations = len(unique_combinations)
+        #unique_ID_Multiple = df['SampleID'].nunique()
+        #unique_combinations = foam_data[['SampleID', 'Dilution']].drop_duplicates()
+        #unique_combinations = len(unique_combinations)
         unique_combinations_date = foam_data[['SampleID', 'Dilution', 'Date']].drop_duplicates()
         unique_combinations_date = len(unique_combinations_date)
         prefix_cols = ['SampleID', 'Date', 'Ratio', 'Oil (%)', 'Dilution', 'Start Time', 'Baseline']
@@ -69,7 +69,7 @@ if utl.check_password():
         final_df = utl.sort_time_columns_in_df(final_df)
         final_df = utl.convert_time_columns_to_float_hour(final_df)
         final_df = utl.extract_ratio_from_dilution(final_df)
-        unique_ID_single = df['SampleID'].nunique()
+        #unique_ID_single = df['SampleID'].nunique()
 
         foam_texture_cols = [col for col in final_df.columns if "foam texture" in col.lower()]
         final_df["Foam Description"] = final_df[foam_texture_cols].astype(str).apply(
