@@ -83,11 +83,11 @@ if utl.check_password():
         # Show output for Parsed_Yates_Oil_Processed.csv
         st.subheader("Extracted Multi Row Samples with Oil (Yates)")
         st.dataframe(df)
-        st.success(f"Total unique samplesID in df: {unique_ID_Multiple}")
-        st.success(f"Total unique samplesID - Dilution in df: {unique_combinations}")
-        st.success(f"Total unique samplesID - Dilution - Date in df: {unique_combinations_date}")
-        st.success(f"Total unique samplesID in final_df: {unique_ID_single}")
-        st.success(f"Number of row in final_df: {len(final_df)}")
+        #st.success(f"Total number of extracted samples: {unique_ID_Multiple}")
+        #st.success(f"Total unique samplesID - Dilution in df: {unique_combinations}")
+        st.success(f"Total number of extracted samples: {unique_combinations_date}")
+        #st.success(f"Total unique samplesID in final_df: {unique_ID_single}")
+        #st.success(f"Number of row in final_df: {len(final_df)}")
 
         # Buttons to download
         col1, col2 = st.columns(2)
