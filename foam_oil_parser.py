@@ -82,7 +82,7 @@ if utl.check_password():
         #final_df.drop(columns=foam_texture_cols, inplace=True)
         phrase="Foam Texture"
         columns_to_drop = [col for col in final_df.columns if phrase.lower() in col.lower()]
-        #final_df = final_df.drop(columns=columns_to_drop, inplace=False)
+        final_df = final_df.drop(columns=columns_to_drop, inplace=False)
         
         # Show output for Parsed_Yates_Oil_Processed.csv
         st.subheader("Extracted Multi Row Samples with Oil (Yates)")
