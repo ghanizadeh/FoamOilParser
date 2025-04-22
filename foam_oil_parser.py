@@ -57,9 +57,11 @@ if utl.check_password():
         final_df = foam_pivot.merge(baseline_map, on=group_cols, how='left')
         final_df = final_df.merge(start_time_map, on=group_cols, how='left')
         final_df = final_df.merge(static_info, on=group_cols, how='left')
-        unique_ID_single = df['SampleID'].nunique()
-        unique_combinations = df[['SampleID', 'Dilution', 'Date']].drop_duplicates()
+        unique_ID_Multiple = df['SampleID'].nunique()
+        unique_combinations = df[['SampleID', 'Dilution']].drop_duplicates()
         unique_combinations = len(unique_combinations)
+        unique_combinations_date = df[['SampleID', 'Dilution', 'Date']].drop_duplicates()
+        unique_combinations_date = len(unique_combinations)
         prefix_cols = ['SampleID', 'Date', 'Ratio', 'Oil (%)', 'Dilution', 'Start Time', 'Baseline']
         time_cols = sorted([col for col in final_df.columns if col.startswith("Time (")])
         all_cols = prefix_cols + time_cols + [col for col in static_cols if col not in prefix_cols]
@@ -81,7 +83,12 @@ if utl.check_password():
         # Show output for Parsed_Yates_Oil_Processed.csv
         st.subheader("Extracted Multi Row Samples with Oil (Yates)")
         st.dataframe(df)
-    
+        st.success(f"Total unique samplesID in df: {unique_ID_Multiple}")
+        st.success(f"Total unique samplesID - Dilution in df: {unique_combinations}")
+        st.success(f"Total unique samplesID - Dilution - Date in df: {unique_combinations_date}")
+        st.success(f"Total unique samplesID in final_df: {unique_ID_single}")
+        st.success(f"Number of row in final_df: {len(final_df)}")
+
         # Buttons to download
         col1, col2 = st.columns(2)
         with col1:
