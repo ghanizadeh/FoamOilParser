@@ -221,6 +221,7 @@ def extract_ratio_from_dilution(df):
     return df
 
 def check_password():
+    st.title("Foam Oil Sample Parser")
     def password_entered():
         if st.session_state["password"] == "2025":
             st.session_state["password_correct"] = True
