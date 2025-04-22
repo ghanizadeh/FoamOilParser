@@ -43,7 +43,7 @@ if utl.check_password():
             foam_data = pd.concat([foam_data, temp], ignore_index=True)
 
         foam_data["Dilution"] = foam_data["Dilution"].fillna("00x")
-        #foam_data["Date"] = foam_data["Date"].fillna("No Date")
+        foam_data["Date"] = foam_data["Date"].fillna("No Date")
 
         group_cols = ['SampleID', 'Date', 'Dilution']
         foam_pivot = foam_data.pivot_table(index=group_cols, columns='Column Name', values='Value', aggfunc='first').reset_index()
