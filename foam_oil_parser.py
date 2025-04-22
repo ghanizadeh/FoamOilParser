@@ -32,7 +32,7 @@ if utl.check_password():
         parsed_df = df.copy()
         parsed_df["Time (min)"] = parsed_df["Time (min)"].apply(utl.convert_to_minutes)
         #parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']] = parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']].ffill()
-        parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']] = parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']].ffill()
+        parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time',  'Oil (%)']] = parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Oil (%)']].ffill()
 
         parsed_df['Time (min)'] = parsed_df['Time (min)'].astype(str)
         
