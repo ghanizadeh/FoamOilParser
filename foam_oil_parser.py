@@ -26,11 +26,14 @@ if utl.check_password():
         df["Dilution"] = df["Dilution"].str.replace(r"-{2,}", " - ", regex=True).str.strip()
         df["Dilution"] = df["Dilution"].fillna("00x")
         df["Date"] = df["Date"].fillna("No Date")
+        unique_ID_multi = df['SampleID'].nunique()
+        df = utl.extract_ratio_from_dilution(df)
 
         parsed_df = df.copy()
         parsed_df["Time (min)"] = parsed_df["Time (min)"].apply(utl.convert_to_minutes)
         parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']] = parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']].ffill()
         parsed_df['Time (min)'] = parsed_df['Time (min)'].astype(str)
+        
 
         foam_data = pd.DataFrame()
         for column, label in [('Foam Layer (cc)', 'Foam (cc)'), ('Foam Texture', 'Foam Texture')]:
@@ -40,7 +43,7 @@ if utl.check_password():
             foam_data = pd.concat([foam_data, temp], ignore_index=True)
 
         foam_data["Dilution"] = foam_data["Dilution"].fillna("00x")
-        foam_data["Date"] = foam_data["Date"].fillna("No Date")
+        #foam_data["Date"] = foam_data["Date"].fillna("No Date")
 
         group_cols = ['SampleID', 'Date', 'Dilution']
         foam_pivot = foam_data.pivot_table(index=group_cols, columns='Column Name', values='Value', aggfunc='first').reset_index()
@@ -54,7 +57,9 @@ if utl.check_password():
         final_df = foam_pivot.merge(baseline_map, on=group_cols, how='left')
         final_df = final_df.merge(start_time_map, on=group_cols, how='left')
         final_df = final_df.merge(static_info, on=group_cols, how='left')
-    
+        unique_ID_single = df['SampleID'].nunique()
+        unique_combinations = df[['SampleID', 'Dilution', 'Date']].drop_duplicates()
+        unique_combinations = len(unique_combinations)
         prefix_cols = ['SampleID', 'Date', 'Ratio', 'Oil (%)', 'Dilution', 'Start Time', 'Baseline']
         time_cols = sorted([col for col in final_df.columns if col.startswith("Time (")])
         all_cols = prefix_cols + time_cols + [col for col in static_cols if col not in prefix_cols]
@@ -62,7 +67,8 @@ if utl.check_password():
         final_df = utl.sort_time_columns_in_df(final_df)
         final_df = utl.convert_time_columns_to_float_hour(final_df)
         final_df = utl.extract_ratio_from_dilution(final_df)
-        
+        unique_ID_single = df['SampleID'].nunique()
+
         foam_texture_cols = [col for col in final_df.columns if "foam texture" in col.lower()]
         final_df["Foam Description"] = final_df[foam_texture_cols].astype(str).apply(
             lambda row: " | ".join([val for val in row if val.lower() != "nan"]), axis=1
@@ -73,7 +79,7 @@ if utl.check_password():
         final_df = final_df.drop(columns=columns_to_drop, inplace=False)
         
         # Show output for Parsed_Yates_Oil_Processed.csv
-        st.subheader("Parsed_Yates_Oil_Processed.csv (Raw Processed)")
+        st.subheader("Extracted Multi Row Samples with Oil (Yates)")
         st.dataframe(df)
     
         # Buttons to download
