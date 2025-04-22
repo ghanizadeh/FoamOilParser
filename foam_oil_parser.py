@@ -29,12 +29,12 @@ if utl.check_password():
         df["Dilution"] = df["Dilution"].fillna("00x")
         df["Date"] = df["Date"].fillna("No Date")
         unique_ID_multi = df['SampleID'].nunique()
-        df = utl.extract_ratio_from_dilution(df)
+        #df = utl.extract_ratio_from_dilution(df)
 
         parsed_df = df.copy()
         parsed_df["Time (min)"] = parsed_df["Time (min)"].apply(utl.convert_to_minutes)
-        #parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']] = parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']].ffill()
-        parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time',  'Oil (%)']] = parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Oil (%)']].ffill()
+        parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']] = parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Ratio', 'Oil (%)']].ffill()
+        #parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time',  'Oil (%)']] = parsed_df[['SampleID', 'Dilution', 'Date', 'Start Time', 'Oil (%)']].ffill()
 
         parsed_df['Time (min)'] = parsed_df['Time (min)'].astype(str)
         
@@ -72,7 +72,7 @@ if utl.check_password():
         final_df = final_df[all_cols]
         final_df = utl.sort_time_columns_in_df(final_df)
         final_df = utl.convert_time_columns_to_float_hour(final_df)
-        #final_df = utl.extract_ratio_from_dilution(final_df)
+        final_df = utl.extract_ratio_from_dilution(final_df)
         #unique_ID_single = df['SampleID'].nunique()
 
         foam_texture_cols = [col for col in final_df.columns if "foam texture" in col.lower()]
