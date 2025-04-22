@@ -72,7 +72,7 @@ if utl.check_password():
         final_df = final_df[all_cols]
         final_df = utl.sort_time_columns_in_df(final_df)
         final_df = utl.convert_time_columns_to_float_hour(final_df)
-        final_df = utl.extract_ratio_from_dilution(final_df)
+        #final_df = utl.extract_ratio_from_dilution(final_df)
         #unique_ID_single = df['SampleID'].nunique()
 
         foam_texture_cols = [col for col in final_df.columns if "foam texture" in col.lower()]
