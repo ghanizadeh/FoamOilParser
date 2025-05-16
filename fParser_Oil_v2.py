@@ -93,7 +93,7 @@ if utl.check_password():
             )
         nan_dilution_rows = parsed_df[parsed_df['Time (min)']=='nan']
         nan_dilution_rows = utl.sort_columns_custom(nan_dilution_rows)    
-        st.dataframe(nan_dilution_rows)
+        #st.dataframe(nan_dilution_rows)
         group_cols = ['SampleID', 'Date', 'Dilution Ratio']
         foam_pivot = foam_data.pivot_table(index=group_cols, columns='Column Name', values='Value', aggfunc='first').reset_index()
         baseline_map = parsed_df.groupby(group_cols)['Baseline'].apply(lambda x: "*" if "*" in x.astype(str).values else "").reset_index()
