@@ -424,14 +424,16 @@ def sort_columns_custom(df):
     # Step 1: Columns containing '%'
     percent_cols = [col for col in df.columns if ('%' in col) or ('ppm' in col)]
     # Step 2: Specific fixed columns
-    fixed_order = ['SampleID', 'Date', 'concentrate manufacturing method (Ratio)', 'Dilution Ratio', 'Brine Type']
+    fixed_order = ['SampleID', 'Date', 'Dilution Ratio', 'Concentrate manufacturing method (Ratio)', 'Brine Type']
+    # Step 4: Performance-related columns
+    #performance_cols = ['Concentrate Stability (4C)','Concentrate Stability (8C)', 'Concentrate Stability (RT)','Concentrate Stability (HT)', 'Dilution Stability', 'Zeta','Conductivity',
+    #    'Size', 'PI', 'Initial Foam Temp (dilution Temp)', 'Temp Foam Monitoring', 'Sonicated', 'Baseline', 'Sample Description']
+    performance_cols = ['Concentrate Stability (4C)','Concentrate Stability (8C)', 'Concentrate Stability (RT)','Concentrate Stability (HT)', 'Dilution Stability', 'Zeta','Conductivity',
+        'Size', 'PI', 'Initial Foam Temp (dilution Temp)', 'Temp Foam Monitoring',  'Baseline', 'Sonicated']
     # Step 3: Columns containing "Day"
     day_cols = [col for col in df.columns if 'Day' in col]
-    # Step 4: Performance-related columns
-    performance_cols = ['Concentrate Stability (RT)','Concentrate Stability (8C)', 'Concentrate Stability (4C)','Concentrate Stability (HT)', 'Dilution Stability', 'Zeta','Conductivity',
-        'Size', 'PI', 'Initial Foam Temp (dilution Temp)', 'Temp Foam Monitoring', 'Sonicated', 'Baseline', 'Sample Description']
     # Combine and keep only those that exist in df
-    all_desired_order = (percent_cols + fixed_order + day_cols + performance_cols)
+    all_desired_order = (percent_cols + fixed_order +  performance_cols + day_cols )
     existing_cols = [col for col in all_desired_order if col in df.columns]
     # Add the rest of columns not yet included
     used = set(existing_cols)
@@ -440,10 +442,7 @@ def sort_columns_custom(df):
     sorted_cols = existing_cols + remaining_cols
     return df[sorted_cols]
 
-
-import pandas as pd
-import re
-
+ 
 def clean_dilution_ratio(df, dilution_col="Dilution Ratio", desc_col="Sample Description"):
     # Ensure the description column exists
     if desc_col not in df.columns:
@@ -497,3 +496,24 @@ def make_sampleid_unique(df):
     
     return pd.DataFrame(updated_rows)
 
+def extract_half_life_samples(df):
+    df = df.applymap(lambda x: x.replace('*', '') if isinstance(x, str) else x)
+    # Select only foam-related columns
+    foam_cols = [col for col in df.columns if re.match(r"Day\s+\d+\s+-\s+Foam\s+\(cc\)", col)]
+    if not foam_cols:
+        raise ValueError("No columns found in the format 'Day - Foam (cc)'")
+    day_pattern = re.compile(r"Day\s+(\d+)\s+-\s+Foam\s+\(cc\)")
+    foam_cols_sorted = sorted(foam_cols, key=lambda x: int(day_pattern.search(x).group(1)))
+
+    # Extract samples that drop to half or less of Day 0 volume
+    half_life_rows = []
+    for idx, row in df.iterrows():
+        initial = row[foam_cols_sorted[0]]
+        if pd.isna(initial) or initial == 0:
+            continue
+        for col in foam_cols_sorted[1:]:
+            if pd.notna(row[col]) and row[col] == 0.5 * initial:
+                half_life_rows.append(idx)
+                break
+
+    return df.loc[half_life_rows]

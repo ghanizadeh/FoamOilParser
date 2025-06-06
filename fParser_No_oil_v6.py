@@ -78,20 +78,23 @@ if utl.check_password():
         #df_multiple_final= utl.sort_columns_custom(df_multiple_final)
         df_single_final = utl.sort_columns_custom(df_single_final)
         # Show output for Parsed_Yates_Oil_Processed.csv
-        st.subheader("Extracted Samples with No Oil")
+        st.subheader("All Samples (No Oil)")
         st.dataframe(df_single_final)
+        st.subheader("Samples with half life")
+        df_half_life = utl.extract_half_life_samples(df_single_final)
+        st.dataframe(df_half_life)
         
         st.success(f"Total number of extracted samples: {len(df_single_final)}")
+        st.success(f"Total number of extracted samples (half-life): {len(df_half_life)}")
 
         #unique_combinations = df_single_final[['SampleID', 'Dilution Ratio']].drop_duplicates()
         #total_unique_combinations = unique_combinations.shape[0]
         #st.success(f"Total unique samplesID - Dilution in df: {total_unique_combinations}")
-
         #unique_combinations_date = df_single_final[['SampleID', 'Dilution Ratio', 'Date']].drop_duplicates()
         #total_unique_combinations_date = unique_combinations_date.shape[0]
         #st.success(f"Total number of extracted samples (with unique SampleID-Dilution-Date): {total_unique_combinations_date}")
         #st.success(f"Total unique samplesID in final_df: {unique_ID_single}")
-        #st.success(f"Number of row in final_df: {len(df_single_final)}")
+        #st.success(f"Number of row in final_df: {len(final_df)}")
 
         # Buttons to download
         col1, col2 = st.columns(2)

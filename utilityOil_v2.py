@@ -15,11 +15,19 @@ def extract_from_dilution(text):
     sonic = np.nan
     brine_type=np.nan
     if pd.notna(text):
+        # Extract start time
+        match_time = re.search(r"\b(\d{1,2}:\d{2})\b", text)
+        if match_time:
+            start_time = match_time.group(1)
+            text = re.sub(r"\b(\d{1,2}:\d{2})\b", "", text, flags=re.IGNORECASE)
+            cleaned_dilution = re.sub(r"\b(\d{1,2}:\d{2})\b", "", text, flags=re.IGNORECASE)
         # Extract ratio
-        match_ratio = re.search(r"\b(\d:\d)\b(?:\s*ratio)?", text, flags=re.IGNORECASE)
+        #match_ratio = re.search(r'\b(\d:0\d)\b(?:\s*ratio)?', text, flags=re.IGNORECASE)
+        match_ratio = re.search(r'\(?(\d+):0*(\d+)\)?(?:\s*ratio)?', text, flags=re.IGNORECASE)
         if match_ratio:
-            ratio = match_ratio.group(1)
-            cleaned_dilution = re.sub("\b(\d:\d)\b(?:\s*ratio)?", "", text, flags=re.IGNORECASE)
+            #ratio = match_ratio.group(1)
+            ratio = f"{match_ratio.group(1)}:{match_ratio.group(2)}"
+            cleaned_dilution = re.sub(r"\(?\b(\d):0*(\d{1,2})\b\)?(?:\s*ratio)?", "", text, flags=re.IGNORECASE)
         # Extract and remove "X stream"  
         match_stream = re.search(r"\b(\d+)\s*stream\b", text, flags=re.IGNORECASE)
         if match_stream:
@@ -36,11 +44,7 @@ def extract_from_dilution(text):
         if match_ml:
             tube_volume = match_ml.group(1)
             cleaned_dilution = re.sub(r"(\d+)\s*mL", "", text, flags=re.IGNORECASE)
-        # Extract start time
-        match_time = re.search(r"\b(\d{1,2}:\d{2})\b", text)
-        if match_time:
-            start_time = match_time.group(1)
-            cleaned_dilution = re.sub(r"\b(\d{1,2}:\d{2})\b", "", text, flags=re.IGNORECASE)
+
         # Extract sonicated
         if re.search(r"[-\s]{0,10}(no|not)[-\s]{0,10}\w*sonic[\w-]*", text, flags=re.IGNORECASE):
             sonic = False
@@ -62,21 +66,22 @@ def extract_from_dilution(text):
 
         # Extract and remove Xcc (e.g. 5cc)
         brine_match = re.search(r"synthetic brine", text, flags=re.IGNORECASE)
-        if xcc_match:
-            brine_type = brine_match.group(0).strip()
+        if brine_match:
+            brine_type = "Synthetic"
             cleaned_dilution = re.sub(r"synthetic brine", "", text, flags=re.IGNORECASE)
-
         #text = re.sub(r"(\d+)\s*cc", "", text, flags=re.IGNORECASE)
         # Now remove all matched patterns from text
-        cleaned_dilution = re.sub(r"\s*-\s*\d{1,2}:\d{2}", "", cleaned_dilution)  # Remove time
+        #cleaned_dilution = re.sub(r"\s*-\s*\d{1,2}:\d{2}", "", cleaned_dilution)  # Remove time
         cleaned_dilution = re.sub(r"\s*-\s*\d{1,2}-[A-Za-z]{3}", "", cleaned_dilution)  # Remove date
-        cleaned_dilution = re.sub(r"\b(\d:\d)\b(?:\s*ratio)?", "", cleaned_dilution, flags=re.IGNORECASE)  # Remove (X:Y) ratio
+        #cleaned_dilution = re.sub(r"\b(\d:\d)\b(?:\s*ratio)?", "", cleaned_dilution, flags=re.IGNORECASE)  # Remove (X:Y) ratio
+        cleaned_dilution = re.sub(r"\(?\b(\d):0*(\d{1,2})\b\)?(?:\s*ratio)?", "", cleaned_dilution, flags=re.IGNORECASE)
+
         cleaned_dilution = re.sub(r"\s*\d+% oil", "", cleaned_dilution, flags=re.IGNORECASE)  # Remove oil %
-        cleaned_dilution = re.sub(r"\s*\d+\s*mL", "", cleaned_dilution, flags=re.IGNORECASE)  # Remove mL
+        #cleaned_dilution = re.sub(r"\s*\d+\s*mL", "", cleaned_dilution, flags=re.IGNORECASE)  # Remove mL
          #Remove leftover " - " at ends or doubled spaces
         cleaned_dilution = re.sub(r"-", " ", cleaned_dilution).strip(" ")
-        cleaned_dilution = re.sub(r"\s*-\s*", " -", cleaned_dilution).strip(" -")
-        cleaned_dilution = re.sub(r"\s{2,}", " ", cleaned_dilution).strip()
+        #cleaned_dilution = re.sub(r"\s*-\s*", " -", cleaned_dilution).strip(" -")
+        #cleaned_dilution = re.sub(r"\s{2,}", " ", cleaned_dilution).strip()
     return pd.Series([ratio, oil_pct, tube_volume, start_time, cleaned_dilution,temp_foam,sonic,brine_type])
 
 # Parse Extracted Formulation
@@ -124,6 +129,7 @@ def extract_all_samples_with_corrected_stability(df):
     concentrate_has_4c = np.nan
     concentrate_has_HT = np.nan
     dilution_stability = np.nan
+
     while row < df.shape[0]:
         cell = str(df.iat[row, 0]).strip()
         # Detect formulation row
@@ -132,7 +138,7 @@ def extract_all_samples_with_corrected_stability(df):
             last_sample_id = last_formulation.get("SampleID")
             # Check up to 10 columns from column 1 to 10 (inclusive)
             is_stable = np.nan
-            concentrate_has_RT = np.nan
+            concentrate_has_RT = True
             concentrate_has_8c = np.nan
             concentrate_has_4c = np.nan
             concentrate_has_HT = np.nan
@@ -149,7 +155,6 @@ def extract_all_samples_with_corrected_stability(df):
                         break
                     if (("unstable dilution" in col_val.lower() or "cloudy dilution" in col_val.lower())) :
                         dilution_stability = False
-                        break
                     else:
                         dilution_stability = True
                     if (("unstable" in col_val.lower() or "cloudy" in col_val.lower()) and  re.search(r"8\s*[cC]", col_val.lower())):
@@ -160,12 +165,12 @@ def extract_all_samples_with_corrected_stability(df):
                         concentrate_has_4c = False
                     elif ("stable" in col_val.lower() and  re.search(r"4\s*[cC]", col_val.lower())):
                         concentrate_has_4c = True
-                    if (("unstable" in col_val.lower() or "cloudy" in col_val.lower()) and  re.search(r"RT", col_val.lower())):
+                    if (("unstable" in col_val.lower() or "cloudy" in col_val.lower()) and  re.search(r"rt", col_val.lower())):
                         concentrate_has_RT = False
-                    elif ("stable" in col_val.lower() and  re.search(r"RT", col_val.lower())):
+                    elif ("stable" in col_val.lower() and  re.search(r"rt", col_val.lower())):
                         concentrate_has_RT = True
-                    #elif "stable" in col_val and "unstable" not in col_val:
-                    #    is_stable = True
+                #elif "stable" in col_val and "unstable" not in col_val:
+                #        is_stable = True
                 except:
                     continue
             row += 1
@@ -183,29 +188,38 @@ def extract_all_samples_with_corrected_stability(df):
                     **{k: v for k, v in last_formulation.items() if k != "SampleID"}
                 })
             continue
-        # Detect dilution row
         if 'dilution' in cell.lower():
+            # This is the dilution header
             dilution_row = df.iloc[row].fillna("").astype(str).tolist()
             last_dilution_text = " -  ".join([x.strip() for x in dilution_row if x.strip()])
             last_date = df.iat[row, 2] if df.shape[1] > 2 else None
             row += 1
             if row >= df.shape[0]:
                 break
+
             header_row = df.iloc[row].fillna("").astype(str).tolist()
             header_map = {name.lower().strip(): idx for idx, name in enumerate(header_row)}
             row += 1
+
+            # Now parse dilution data rows under this header
             while row < df.shape[0]:
                 time_val = str(df.iat[row, 0]).strip()
+
+                # Stop if new formulation or dilution row starts or empty row
                 if time_val.lower().startswith("time") or time_val == "":
                     row += 1
                     continue
                 if any(sym in time_val.lower() for sym in ["%", "ppm"]) and "(" in time_val:
+                    # new formulation detected, break to outer loop
                     break
-                if 'Dilution Ratio' in time_val.lower():
+                if 'dilution' in time_val.lower():
+                    # new dilution header detected, break to outer loop to update last_dilution_text
                     break
                 if not re.match(r"^\d+(\.\d+)?[hdm]?$", time_val, re.IGNORECASE):
                     row += 1
                     continue
+
+                # Append the sample for this dilution data row
                 sample = {
                     "SampleID": last_sample_id,
                     'Dilution Ratio': last_dilution_text,
@@ -225,8 +239,9 @@ def extract_all_samples_with_corrected_stability(df):
                 samples.append(sample)
                 row += 1
             continue
-        else:
-            row += 1
+
+        row += 1
+
     return pd.DataFrame(samples)
 
 def convert_to_minutes(value):
@@ -323,10 +338,27 @@ def sort_columns_custom(df):
     percent_cols = [col for col in df.columns if ('%' in col) or ('ppm' in col)]
     # Step 2: Specific fixed columns
     fixed_order = ['SampleID', 'Date', 'Concentrate manufacturing method (Ratio)', 'Dilution Ratio', 'Brine Type']
-    # Step 3: Columns containing "Day"
-    Time_cols = [col for col in df.columns if 'Time' in col]
+    # Step 3: Columns with "Day X - Date" and "Day X - Observation"
+    day_pattern = re.compile(r'Day (\d+) - (Date|Observation)', re.IGNORECASE)
+    day_dict = {}
+
+    for col in df.columns:
+        match = day_pattern.match(col)
+        if match:
+            day_num = int(match.group(1))
+            label = match.group(2).capitalize()
+            day_dict.setdefault(day_num, {})[label] = col
+
+    # Interleave Date and Observation for each day in order
+    time_cols = []
+    for day in sorted(day_dict.keys()):
+        if 'Date' in day_dict[day]:
+            time_cols.append(day_dict[day]['Date'])
+        if 'Observation' in day_dict[day]:
+            time_cols.append(day_dict[day]['Observation'])
     # Step 4: Performance-related columns
-    performance_cols = ['Concentrate Stability (8C)', 'Concentrate Stability (4C)', 'Dilution Stability', 'Initial Foam Temp (dilution Temp)', 'Temp Foam Monitoring', 'Sonicated', 'Baseline', 'Sample Description']
+    performance_cols = ['Concentrate Stability (4C)', 'Concentrate Stability (8C)',  'Dilution Stability', 'Initial Foam Temp (dilution Temp)', 
+                        'Temp Foam Monitoring', 'Sonicated', 'Baseline', 'Sample Description']
     # Combine and keep only those that exist in df
     all_desired_order = (percent_cols + fixed_order + Time_cols + performance_cols)
     existing_cols = [col for col in all_desired_order if col in df.columns]
@@ -364,3 +396,43 @@ def make_sampleid_unique(df):
     
     return pd.DataFrame(updated_rows)
 
+def extract_half_life_samples(df):
+    df = df.applymap(lambda x: x.replace('*', '') if isinstance(x, str) else x)
+    # Select only foam-related columns
+    foam_cols = [col for col in df.columns if col.startswith("Time (") and "Foam" in col]
+    if not foam_cols:
+        raise ValueError("No columns found in the format 'Time (X[h]) - Foam (cc)'")
+
+    time_values = []
+    valid_foam_cols = []
+
+    for col in foam_cols:
+        time_str = col.split('(')[1].split(')')[0]
+        try:
+            if time_str.endswith('h'):  # Time in hours
+                time_val = float(time_str[:-1]) * 60
+            else:  # Time in minutes
+                time_val = float(time_str)
+            time_values.append(time_val)
+            valid_foam_cols.append(col)
+        except ValueError:
+            continue  # skip malformed time strings
+
+    if not valid_foam_cols:
+        raise ValueError("No foam columns with valid time values found.")
+
+    # Sort columns by actual time in minutes
+    sorted_foam_cols = [col for _, col in sorted(zip(time_values, valid_foam_cols))]
+
+    def has_half_life(row):
+        foam_values = row[sorted_foam_cols].values.astype(float)
+        initial_value = foam_values[0]
+        if initial_value <= 0 or pd.isna(initial_value):
+            return False
+        half_value = initial_value / 2.0
+        return any(v == half_value for v in foam_values[1:])
+
+    return df[df.apply(has_half_life, axis=1)].reset_index(drop=True)
+
+ 
+ 
